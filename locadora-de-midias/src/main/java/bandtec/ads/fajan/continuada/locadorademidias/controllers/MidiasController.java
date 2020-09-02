@@ -2,9 +2,7 @@ package bandtec.ads.fajan.continuada.locadorademidias.controllers;
 
 import bandtec.ads.fajan.continuada.locadorademidias.models.*;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -28,6 +26,18 @@ public class MidiasController {
         return midias;
     }
 
+    @GetMapping("/{tipoDeMidia}")
+    public List exibirTodos(@PathVariable String tipoDeMidia) {
+        List<Midia> midiasFiltradas = new ArrayList();
+        for (Midia m : midias) {
+            String classeDeM = m.getClass().toString()
+                    .replace("class bandtec.ads.fajan.continuada.locadorademidias.models.", "")
+                    .toLowerCase();
+            if (classeDeM.equals(tipoDeMidia.toLowerCase()))
+                midiasFiltradas.add(m);
+        } return midiasFiltradas;
+    }
+
     @GetMapping("/buscar/peloId/{id}")
     public Midia buscar(@PathVariable int id) {
         return midias.get(--id);
@@ -41,16 +51,19 @@ public class MidiasController {
         return null;
     }
 
-    //Arrumar
-    @PostMapping("/adicionar")
-    public void adicionar(@RequestBody Midia midia) {
-        midias.add(midia);
+    @PostMapping("/adicionar/cd")
+    public void adicionar(@RequestBody CD cd) {
+        midias.add(cd);
     }
 
-    //Arrumar
-    @PutMapping("/alterar/{id}")
-    public void alterar(@PathVariable int id, @RequestBody Midia midia) {
-        midias.set(--id, midia);
+    @PostMapping("/adicionar/dvd")
+    public void adicionar(@RequestBody DVD dvd) {
+        midias.add(dvd);
+    }
+
+    @PostMapping("/adicionar/jogo")
+    public void adicionar(@RequestBody Jogo jogo) {
+        midias.add(jogo);
     }
 
     @DeleteMapping("/deletar/{id}")

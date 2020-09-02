@@ -1,6 +1,6 @@
 package bandtec.ads.fajan.continuada.locadorademidias.models;
 
-public class Jogo extends  Midia {
+public class Jogo extends Midia {
 
     private String distribuidora;
 
