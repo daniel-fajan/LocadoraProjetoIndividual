@@ -1,6 +1,7 @@
 package bandtec.ads.fajan.continuada.locadorademidias.controllers;
 
 import bandtec.ads.fajan.continuada.locadorademidias.models.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,52 +23,95 @@ public class MidiasController {
     }
 
     @GetMapping
-    public List exibirTodos() {
-        return midias;
+    public ResponseEntity exibirTodos() {
+        if (midias.isEmpty())
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(midias);
     }
 
     @GetMapping("/{tipoDeMidia}")
-    public List exibirTodos(@PathVariable String tipoDeMidia) {
+    public ResponseEntity exibirTodos(@PathVariable String tipoDeMidia) {
         List<Midia> midiasFiltradas = new ArrayList();
         for (Midia m : midias) {
-            String classeDeM = m.getClass().toString()
-                    .replace("class bandtec.ads.fajan.continuada.locadorademidias.models.", "")
-                    .toLowerCase();
-            if (classeDeM.equals(tipoDeMidia.toLowerCase()))
-                midiasFiltradas.add(m);
-        } return midiasFiltradas;
+            if (tipoDeMidia.equals("cd")) {
+                if (m instanceof CD)
+                    midiasFiltradas.add(m);
+            } else if (tipoDeMidia.equals("dvd")) {
+                if (m instanceof DVD)
+                    midiasFiltradas.add(m);
+            } else if (tipoDeMidia.equals("jogo")) {
+                if (m instanceof Jogo)
+                    midiasFiltradas.add(m);
+            } else return ResponseEntity.badRequest().build();
+        } if (midiasFiltradas.isEmpty())
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(midiasFiltradas);
     }
 
-    @GetMapping("/buscar/peloId/{id}")
-    public Midia buscar(@PathVariable int id) {
-        return midias.get(--id);
+    @GetMapping("/id/{id}")
+    public ResponseEntity buscar(@PathVariable int id) {
+        if (id > 0) {
+            if (midias.size() >= id)
+                return ResponseEntity.ok(midias.get(--id));
+            return ResponseEntity.noContent().build();
+        } return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping("/buscar/peloNome/{parametro}")
-    public Midia buscar(@PathVariable String parametro) {
-        for (Midia m : midias)
-            if (m.getNome().equals(parametro))
-                return m;
-        return null;
-    }
-
-    @PostMapping("/adicionar/cd")
-    public void adicionar(@RequestBody CD cd) {
+    @PostMapping("/cd")
+    public ResponseEntity adicionar(@RequestBody CD cd) {
         midias.add(cd);
+        return ResponseEntity.status(201).build();
     }
 
-    @PostMapping("/adicionar/dvd")
-    public void adicionar(@RequestBody DVD dvd) {
+    @PostMapping("/dvd")
+    public ResponseEntity adicionar(@RequestBody DVD dvd) {
         midias.add(dvd);
+        return ResponseEntity.status(201).build();
     }
 
-    @PostMapping("/adicionar/jogo")
-    public void adicionar(@RequestBody Jogo jogo) {
+    @PostMapping("/jogo")
+    public ResponseEntity adicionar(@RequestBody Jogo jogo) {
         midias.add(jogo);
+        return ResponseEntity.status(201).build();
     }
 
-    @DeleteMapping("/deletar/{id}")
-    public void deletar(@PathVariable int id) {
-        midias.remove(--id);
+    @PutMapping("/cd/{id}")
+    public ResponseEntity editar(@PathVariable int id, @RequestBody CD cd) {
+        if (id > 0) {
+            if (midias.size() >= id && midias.get(--id) instanceof CD) {
+                midias.set(--id, cd);
+                return ResponseEntity.ok().build();
+            } return ResponseEntity.notFound().build();
+        } return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("/dvd/{id}")
+    public ResponseEntity editar(@PathVariable int id, @RequestBody DVD dvd) {
+        if (id > 0) {
+            if (midias.size() >= id && midias.get(--id) instanceof DVD) {
+                midias.set(--id, dvd);
+                return ResponseEntity.ok().build();
+            } return ResponseEntity.notFound().build();
+        } return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("/jogo/{id}")
+    public ResponseEntity editar(@PathVariable int id, @RequestBody Jogo jogo) {
+        if (id > 0) {
+            if (midias.size() >= id && midias.get(--id) instanceof Jogo) {
+                midias.set(id, jogo);
+                return ResponseEntity.ok().build();
+            } return ResponseEntity.notFound().build();
+        } return ResponseEntity.badRequest().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deletar(@PathVariable int id) {
+        if (id > 0) {
+            if (midias.size() >= id) {
+                midias.remove(--id);
+                return ResponseEntity.ok().build();
+            } return ResponseEntity.notFound().build();
+        } return ResponseEntity.badRequest().build();
     }
 }
