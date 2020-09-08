@@ -53,7 +53,7 @@ public class MidiasController {
         if (id > 0) {
             if (midias.size() >= id)
                 return ResponseEntity.ok(midias.get(--id));
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.notFound().build();
         } return ResponseEntity.badRequest().build();
     }
 
